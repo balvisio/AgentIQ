@@ -30,6 +30,7 @@ from aiq.builder.llm import LLMProviderInfo
 from aiq.builder.retriever import RetrieverProviderInfo
 from aiq.data_models.config import AIQConfig
 from aiq.memory.interfaces import MemoryEditor
+from aiq.object_store.interfaces import ObjectStore
 from aiq.runtime.runner import AIQRunner
 
 callback_handler_var: ContextVar[Any | None] = ContextVar("callback_handler_var", default=None)
@@ -45,6 +46,7 @@ class Workflow(FunctionBase[InputT, StreamingOutputT, SingleOutputT]):
                  llms: dict[str, LLMProviderInfo] | None = None,
                  embeddings: dict[str, EmbedderProviderInfo] | None = None,
                  memory: dict[str, MemoryEditor] | None = None,
+                 object_stores: dict[str, ObjectStore] | None = None,
                  exporters: dict[str, SpanExporter] | None = None,
                  retrievers: dict[str | None, RetrieverProviderInfo] | None = None,
                  context_state: AIQContextState):
@@ -58,6 +60,7 @@ class Workflow(FunctionBase[InputT, StreamingOutputT, SingleOutputT]):
         self.llms = llms or {}
         self.embeddings = embeddings or {}
         self.memory = memory or {}
+        self.object_stores = object_stores or {}
         self.retrievers = retrievers or {}
 
         self._entry_fn = entry_fn
@@ -112,6 +115,7 @@ class Workflow(FunctionBase[InputT, StreamingOutputT, SingleOutputT]):
                       llms: dict[str, LLMProviderInfo] | None = None,
                       embeddings: dict[str, EmbedderProviderInfo] | None = None,
                       memory: dict[str, MemoryEditor] | None = None,
+                      object_stores: dict[str, ObjectStore] | None = None,
                       exporters: dict[str, SpanExporter] | None = None,
                       retrievers: dict[str | None, RetrieverProviderInfo] | None = None,
                       context_state: AIQContextState) -> 'Workflow[InputT, StreamingOutputT, SingleOutputT]':
@@ -129,6 +133,7 @@ class Workflow(FunctionBase[InputT, StreamingOutputT, SingleOutputT]):
                             llms=llms,
                             embeddings=embeddings,
                             memory=memory,
+                            object_stores=object_stores,
                             exporters=exporters,
                             retrievers=retrievers,
                             context_state=context_state)

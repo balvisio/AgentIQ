@@ -59,6 +59,7 @@ To install these first-party plugin libraries, you can use the full distribution
 - `agentiq[langchain]` or `agentiq-langchain` - LangChain specific plugins
 - `agentiq[llama-index]` or `agentiq-llama-index` - LlamaIndex specific plugins
 - `agentiq[mem0ai]` or `agentiq-mem0ai` - Mem0AI specific plugins
+- `agentiq[s3-object-store]` or `agentiq-s3-object-store` - S3-compatible object store specific plugins
 - `agentiq[semantic-kernel]` or `agentiq-semantic-kernel` - Semantic Kernel specific plugins
 - `agentiq[test]` or `agentiq-test` - Test specific plugins
 - `agentiq[zep-cloud]` or `agentiq-zep-cloud` - Zep Cloud specific plugins

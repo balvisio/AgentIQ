@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = "==3.12.*"
 resolution-markers = [
     "python_full_version >= '3.12.4'",
@@ -14,6 +13,7 @@ members = [
     "agentiq-langchain",
     "agentiq-llama-index",
     "agentiq-mem0ai",
+    "agentiq-s3-object-store",
     "agentiq-semantic-kernel",
     "agentiq-test",
     "agentiq-zep-cloud",
@@ -73,6 +73,7 @@ examples = [
     { name = "aiq-email-phishing-analyzer" },
     { name = "aiq-multi-frameworks" },
     { name = "aiq-plot-charts" },
+    { name = "aiq-report" },
     { name = "aiq-semantic-kernel-demo" },
     { name = "aiq-simple" },
     { name = "aiq-simple-calculator" },
@@ -91,6 +92,9 @@ profiling = [
     { name = "matplotlib" },
     { name = "prefixspan" },
     { name = "scikit-learn" },
+]
+s3-object-store = [
+    { name = "agentiq-s3-object-store" },
 ]
 semantic-kernel = [
     { name = "agentiq-semantic-kernel" },
@@ -139,6 +143,7 @@ requires-dist = [
     { name = "agentiq-langchain", marker = "extra == 'langchain'", editable = "packages/agentiq_langchain" },
     { name = "agentiq-llama-index", marker = "extra == 'llama-index'", editable = "packages/agentiq_llama_index" },
     { name = "agentiq-mem0ai", marker = "extra == 'mem0ai'", editable = "packages/agentiq_mem0ai" },
+    { name = "agentiq-s3-object-store", marker = "extra == 's3-object-store'", editable = "packages/agentiq_s3_object_store" },
     { name = "agentiq-semantic-kernel", marker = "extra == 'semantic-kernel'", editable = "packages/agentiq_semantic_kernel" },
     { name = "agentiq-zep-cloud", marker = "extra == 'zep-cloud'", editable = "packages/agentiq_zep_cloud" },
     { name = "aioboto3", specifier = ">=11.0.0" },
@@ -147,6 +152,7 @@ requires-dist = [
     { name = "aiq-email-phishing-analyzer", marker = "extra == 'examples'", editable = "examples/email_phishing_analyzer" },
     { name = "aiq-multi-frameworks", marker = "extra == 'examples'", editable = "examples/multi_frameworks" },
     { name = "aiq-plot-charts", marker = "extra == 'examples'", editable = "examples/plot_charts" },
+    { name = "aiq-report", marker = "extra == 'examples'", editable = "examples/report" },
     { name = "aiq-semantic-kernel-demo", marker = "extra == 'examples'", editable = "examples/semantic_kernel_demo" },
     { name = "aiq-simple", marker = "extra == 'examples'", editable = "examples/simple" },
     { name = "aiq-simple-calculator", marker = "extra == 'examples'", editable = "examples/simple_calculator" },
@@ -177,7 +183,6 @@ requires-dist = [
     { name = "uvicorn", extras = ["standard"], specifier = "~=0.32.0" },
     { name = "wikipedia", specifier = "~=1.4" },
 ]
-provides-extras = ["crewai", "langchain", "llama-index", "mem0ai", "semantic-kernel", "zep-cloud", "agno", "examples", "profiling"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -304,6 +309,20 @@ requires-dist = [
 ]
 
 [[package]]
+name = "agentiq-s3-object-store"
+source = { editable = "packages/agentiq_s3_object_store" }
+dependencies = [
+    { name = "agentiq" },
+    { name = "aioboto3" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "agentiq", editable = "." },
+    { name = "aioboto3", specifier = ">=11.0.0" },
+]
+
+[[package]]
 name = "agentiq-semantic-kernel"
 source = { editable = "packages/agentiq_semantic_kernel" }
 dependencies = [
@@ -366,22 +385,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a6/a2/8d1961275318a1be24d09249f8445d43571bdc96949dd25c10f5a9e26a9e/agno-1.2.11.tar.gz", hash = "sha256:6f36ed60767b655223abca5b61b487e63b6b098050a65e71610e2de914a66e5a", size = 451754 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/13/47/2094f0801ae34fa487a17a6cd118e881d69f97fbf5caec504f8b966b0a92/agno-1.2.11-py3-none-any.whl", hash = "sha256:ea72e0f8e42e4ee8c20c8f583759f50bfbd2af90b2f8e3df20d35be9f8a235a8", size = 598924 },
-]
-
-[[package]]
-name = "aiq-agno-personal-finance"
-source = { editable = "examples/agno_personal_finance" }
-dependencies = [
-    { name = "agentiq", extra = ["agno"] },
-    { name = "litellm" },
-    { name = "openai" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "agentiq", extras = ["agno"], editable = "." },
-    { name = "litellm", specifier = "~=1.63.14" },
-    { name = "openai", specifier = "~=1.66" },
 ]
 
 [[package]]
@@ -543,6 +546,22 @@ wheels = [
 ]
 
 [[package]]
+name = "aiq-agno-personal-finance"
+source = { editable = "examples/agno_personal_finance" }
+dependencies = [
+    { name = "agentiq", extra = ["agno"] },
+    { name = "litellm" },
+    { name = "openai" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "agentiq", extras = ["agno"], editable = "." },
+    { name = "litellm", specifier = "~=1.63.14" },
+    { name = "openai", specifier = "~=1.66" },
+]
+
+[[package]]
 name = "aiq-automated-description-generation"
 source = { editable = "examples/automated_description_generation" }
 dependencies = [
@@ -609,6 +628,16 @@ requires-dist = [
     { name = "matplotlib", specifier = "==3.9.*" },
     { name = "seaborn", specifier = "==0.13.*" },
 ]
+
+[[package]]
+name = "aiq-report"
+source = { editable = "examples/report" }
+dependencies = [
+    { name = "agentiq", extra = ["s3-object-store"] },
+]
+
+[package.metadata]
+requires-dist = [{ name = "agentiq", extras = ["s3-object-store"], editable = "." }]
 
 [[package]]
 name = "aiq-semantic-kernel-demo"
@@ -2732,7 +2761,7 @@ wheels = [
 
 [[package]]
 name = "litellm"
-version = "1.63.6"
+version = "1.63.14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -2747,9 +2776,9 @@ dependencies = [
     { name = "tiktoken" },
     { name = "tokenizers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/12/b3/79bea1f09869542a067872538a0c2dab7c7f6059dd358fde93295ec3b907/litellm-1.63.6.tar.gz", hash = "sha256:b8fd6eca1f17f7d1101f38a90689b5f1a2f42a828c70299e0cb570297e5fb9ae", size = 6596287 }
+sdist = { url = "https://files.pythonhosted.org/packages/3e/6a/a1a93c8419b59d0a40f59dc7300d67f45cd33a246367b09365dd7771568b/litellm-1.63.14.tar.gz", hash = "sha256:9cffe19d8140c33a2f777c5b2e8b8175ffe03979aac341b8538d6e6d143bd640", size = 6641535 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bd/bf/3e55da5cacd9c6a1ed45e42a484f8b47512bd9739e347be8e715a8af1545/litellm-1.63.6-py3-none-any.whl", hash = "sha256:68d3d1f6c062851702e3f7ad99a204cf2b67f8b79d8608f22b72664e7de641c6", size = 6909073 },
+    { url = "https://files.pythonhosted.org/packages/8b/0c/149ae51e16d0836d6ddc9aec03a110960227046860dfc68bd3746a23cdf5/litellm-1.63.14-py3-none-any.whl", hash = "sha256:d4c469f5990e142cc23dfa06c3fddd627001928e4df43682001f453af6a1fb51", size = 6964658 },
 ]
 
 [[package]]

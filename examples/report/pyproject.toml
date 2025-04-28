@@ -1,0 +1,23 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools >= 64", "setuptools-scm>=8"]
+
+[tool.setuptools_scm]
+root = "../.."
+
+[project]
+name = "aiq_report"
+dynamic = ["version"]
+dependencies = [
+  "agentiq[s3_object_store]",
+]
+requires-python = ">=3.12"
+description = "AgentIQ example that uses an Object Store"
+keywords = ["ai", "rag", "agents"]
+classifiers = ["Programming Language :: Python"]
+
+[tool.uv.sources]
+agentiq = { path = "../../", editable = true }
+
+[project.entry-points.'aiq.components']
+aiq_simple = "aiq_report.register"

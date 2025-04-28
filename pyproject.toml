@@ -58,6 +58,7 @@ crewai = ["agentiq-crewai"]
 langchain = ["agentiq-langchain"]
 llama-index = ["agentiq-llama-index"]
 mem0ai = ["agentiq-mem0ai"]
+s3-object-store = ["agentiq-s3-object-store"]
 semantic-kernel = ["agentiq-semantic-kernel"]
 zep-cloud = ["agentiq-zep-cloud"]
 agno = ["agentiq-agno"]
@@ -66,6 +67,7 @@ examples = [
   "aiq_email_phishing_analyzer",
   "aiq_multi_frameworks",
   "aiq_plot_charts",
+  "aiq_report",
   "aiq_semantic_kernel_demo",
   "aiq_simple_calculator",
   "aiq_simple",
@@ -91,6 +93,7 @@ agentiq-crewai = { workspace = true }
 agentiq-langchain = { workspace = true }
 agentiq-llama-index = { workspace = true }
 agentiq-mem0ai = { workspace = true }
+agentiq-s3-object-store = { workspace = true }
 agentiq-semantic-kernel = { workspace = true }
 agentiq-test = { workspace = true }
 agentiq-zep-cloud = { workspace = true }
@@ -100,6 +103,7 @@ agentiq-agno = { workspace = true }
 aiq_email_phishing_analyzer = { path = "examples/email_phishing_analyzer", editable = true }
 aiq_multi_frameworks = { path = "examples/multi_frameworks", editable = true }
 aiq_plot_charts = { path = "examples/plot_charts", editable = true }
+aiq_report = { path = "examples/report", editable = true }
 aiq_semantic_kernel_demo = { path = "examples/semantic_kernel_demo", editable = true }
 aiq_simple = { path = "examples/simple", editable = true }
 aiq_simple_calculator = { path = "examples/simple_calculator", editable = true }
