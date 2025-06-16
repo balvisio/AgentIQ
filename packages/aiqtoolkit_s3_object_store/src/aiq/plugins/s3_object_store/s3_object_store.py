@@ -19,34 +19,30 @@ import aioboto3
 
 from aiq.object_store.interfaces import ObjectStore
 from aiq.object_store.models import ObjectStoreItem
+from aiq.plugins.s3_object_store.object_store import S3ObjectStoreClientConfig
 
 
 class S3ObjectStore(ObjectStore):
 
-    def __init__(self,
-                 bucket_name: str,
-                 access_key: str | None,
-                 secret_key: str | None,
-                 region: str | None,
-                 endpoint_url: str | None):
-        self.bucket_name = bucket_name
+    def __init__(self, config: S3ObjectStoreClientConfig):
+        self.bucket_name = config.bucket_name
         self.session = aioboto3.Session()
-        access_key = access_key or os.environ.get("OBJECT_STORE_ACCESS_KEY")
+        access_key = config.access_key or os.environ.get("AIQ_OBJECT_STORE_ACCESS_KEY")
         if not access_key:
             raise ValueError(
-                "Access key is not set. Please specify it in the environment variable 'OBJECT_STORE_ACCESS_KEY_ID'.")
+                "Access key is not set. Please specify it in the environment variable 'AIQ_OBJECT_STORE_ACCESS_KEY_ID'.")
 
-        secret_key = secret_key or os.environ.get("OBJECT_STORE_SECRET_KEY")
+        secret_key = config.secret_key or os.environ.get("AIQ_OBJECT_STORE_SECRET_KEY")
         if not secret_key:
             raise ValueError(
-                "Secret key is not set. Please specify it in the environment variable 'OBJECT_STORE_SECRET_ACCESS_KEY'."
+                "Secret key is not set. Please specify it in the environment variable 'AIQ_OBJECT_STORE_SECRET_ACCESS_KEY'."
             )
 
         self.client_args = {
             "aws_access_key_id": access_key,
             "aws_secret_access_key": secret_key,
-            "region_name": region,
-            "endpoint_url": endpoint_url
+            "region_name": config.region,
+            "endpoint_url": config.endpoint_url
         }
 
     async def put_object(self, key: str, data: ObjectStoreItem) -> None:

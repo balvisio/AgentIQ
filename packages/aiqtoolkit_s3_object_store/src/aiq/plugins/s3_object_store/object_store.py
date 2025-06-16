@@ -31,4 +31,4 @@ async def s3_object_store_client(config: S3ObjectStoreClientConfig, builder: Bui
 
     from aiq.plugins.s3_object_store.s3_object_store import S3ObjectStore
 
-    yield S3ObjectStore(config.bucket_name, config.access_key, config.secret_key, config.region, config.endpoint_url)
+    yield S3ObjectStore(config)
