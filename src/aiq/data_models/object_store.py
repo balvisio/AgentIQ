@@ -24,3 +24,19 @@ class ObjectStoreBaseConfig(TypedBaseModel, BaseModelRegistryTag):
 
 
 ObjectStoreBaseConfigT = typing.TypeVar("ObjectStoreBaseConfigT", bound=ObjectStoreBaseConfig)
+
+
+class KeyAlreadyExistsError(Exception):
+    def __init__(self, key: str, additional_message:str | None = None):
+        parts = [f"Key already exists: {key}."]
+        if additional_message:
+            parts.append(additional_message)
+        super().__init__(" ".join(parts))
+
+
+class NoSuchKeyError(Exception):
+    def __init__(self, key: str, additional_message: str | None = None):
+        parts = [f"No object found with key: {key}."]
+        if additional_message:
+            parts.append(additional_message)
+        super().__init__(" ".join(parts))

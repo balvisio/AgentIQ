@@ -32,7 +32,7 @@ class ObjectStore(ABC):
         pass
 
     @abstractmethod
-    async def get_object(self, key: str) -> ObjectStoreItem | str:
+    async def get_object(self, key: str) -> ObjectStoreItem:
         """
         Get a value from the key-value store by key.
         """

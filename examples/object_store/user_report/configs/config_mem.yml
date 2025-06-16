@@ -13,12 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+general:
+  front_end:
+    _type: fastapi
+    object_store: report_object_store
+    cors:
+      allow_origins: ['*']
+
 object_stores:
   report_object_store:
-    _type: s3
-    endpoint_url: http://localhost:9000
-    access_key: minioadmin
-    secret_key: minioadmin
+    _type: memory
     bucket_name: my-bucket
 
 llms:

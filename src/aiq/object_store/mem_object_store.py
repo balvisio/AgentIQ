@@ -15,6 +15,8 @@
 
 from aiq.builder.builder import Builder
 from aiq.cli.register_workflow import register_object_store
+from aiq.data_models.object_store import KeyAlreadyExistsError
+from aiq.data_models.object_store import NoSuchKeyError
 from aiq.data_models.object_store import ObjectStoreBaseConfig
 
 from .interfaces import ObjectStore
@@ -35,15 +37,23 @@ class MemObjectStore(ObjectStore):
         key: str,
         data: ObjectStoreItem,
     ) -> None:
+        if key in self._store:
+            raise KeyAlreadyExistsError(key)
+
         self._store[key] = data
         return
 
-    async def get_object(self, key: str) -> ObjectStoreItem | str:
-        return self._store.get(key, f"No object found with key: {key}")
+    async def get_object(self, key: str) -> ObjectStoreItem:
+        try:
+            return self._store[key]
+        except KeyError:
+            raise NoSuchKeyError(key)
 
     async def delete_object(self, key: str) -> None:
-        self._store.pop(key, None)
-        return
+        try:
+            self._store.pop(key)
+        except KeyError:
+            raise NoSuchKeyError(key)
 
 
 @register_object_store(config_type=MemObjectStoreConfig)

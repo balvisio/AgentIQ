@@ -64,12 +64,57 @@ sudo dpkg -i minio.deb
 minio server ~/.minio
 ```
 
+### Useful MinIO Commands
+
+List buckets:
+```
+mc ls myminio
+```
+
+List all files in a bucket:
+```
+mc ls --recursive myminio/my-bucket
+```
+
 ### Load Mock Data
 To load mock data to minIO, use the `upload_to_minio.sh` script in this directory. For this example, we will load the mock user reports in the `data/object_store` directory.
 
 ```
 ./upload_to_minio.sh data/object_store myminio my-bucket
 ```
+
+## AIQ File Server
+
+By adding the `object_store` field in the `general.front_end` block of the configuration, clients directly download and
+upload files to the connected object store. An example configuration looks like:
+
+```
+general:
+  front_end:
+    object_store: my_object_store
+    ...
+
+object_stores:
+  my_object_store:
+  ...
+```
+
+You can start the server by running:
+```
+aiq serve --config_file examples/object_store/user_report/configs/config.yml
+```
+
+### Using the Object Store backed File Server
+
+- Downloading an object: `curl -X GET http://<hostname>:<port>/static/{file_path}`
+- Uploading an object: `curl -X POST http://<hostname>:<port>/static/{file_path}`
+- Upserting an object: `curl -X PUT http://<hostname>:<port>/static/{file_path}`
+- Deleting an object: `curl -X DELETE http://<hostname>:<port>/static/{file_path}`
+
+If the script `./upload_to_minio.sh` was run and the files are in the object store, example commands are:
+
+- Deleting an object: `curl -X DELETE http://localhost:8000/static/reports/67890/latest.json`
+
 
 ## Run the Workflow
 

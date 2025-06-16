@@ -19,6 +19,7 @@ import aioboto3
 
 from aiq.object_store.interfaces import ObjectStore
 from aiq.object_store.models import ObjectStoreItem
+from aiq.data_models.object_store import NoSuchKeyError
 from aiq.plugins.s3_object_store.object_store import S3ObjectStoreClientConfig
 
 
@@ -60,14 +61,14 @@ class S3ObjectStore(ObjectStore):
         async with self.session.client("s3", **self.client_args) as s3:
             await s3.put_object(**put_args)
 
-    async def get_object(self, key: str) -> ObjectStoreItem | str:
+    async def get_object(self, key: str) -> ObjectStoreItem:
         async with self.session.client("s3", **self.client_args) as client:
             try:
                 response = await client.get_object(Bucket=self.bucket_name, Key=key)
                 data = await response["Body"].read()
                 return ObjectStoreItem(data=data, content_type=response['ContentType'], metadata=response['Metadata'])
-            except client.exceptions.NoSuchKey:
-                return f"No object found with key: {key}"
+            except client.exceptions.NoSuchKey as e:
+                raise NoSuchKeyError(key, str(e))
 
     async def delete_object(self, key: str) -> None:
         async with self.session.client("s3", **self.client_args) as s3:

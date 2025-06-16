@@ -139,3 +139,4 @@ def test_fast_api_front_end_config(config_kwargs: dict):
         assert isinstance(model.cors, FastApiFrontEndConfig.CrossOriginResourceSharing)
         assert isinstance(model.use_gunicorn, bool)
         assert (isinstance(model.runner_class, str) or model.runner_class is None)
+        assert model.object_store is None
