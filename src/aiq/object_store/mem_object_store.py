@@ -35,12 +35,16 @@ class MemObjectStore(ObjectStore):
     async def put_object(
         self,
         key: str,
-        data: ObjectStoreItem,
+        item: ObjectStoreItem,
     ) -> None:
         if key in self._store:
             raise KeyAlreadyExistsError(key)
 
-        self._store[key] = data
+        self._store[key] = item
+        return
+
+    async def upsert_object(self, key: str, item: ObjectStoreItem) -> None:
+        self._store[key] = item
         return
 
     async def get_object(self, key: str) -> ObjectStoreItem:
@@ -50,10 +54,7 @@ class MemObjectStore(ObjectStore):
             raise NoSuchKeyError(key)
 
     async def delete_object(self, key: str) -> None:
-        try:
-            self._store.pop(key)
-        except KeyError:
-            raise NoSuchKeyError(key)
+        self._store.pop(key)
 
 
 @register_object_store(config_type=MemObjectStoreConfig)

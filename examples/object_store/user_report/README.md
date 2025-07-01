@@ -76,11 +76,82 @@ List all files in a bucket:
 mc ls --recursive myminio/my-bucket
 ```
 
-### Load Mock Data
+### Load Mock Data to MiniIO
 To load mock data to minIO, use the `upload_to_minio.sh` script in this directory. For this example, we will load the mock user reports in the `data/object_store` directory.
 
 ```
+cd examples/object_store/user_report/
 ./upload_to_minio.sh data/object_store myminio my-bucket
+```
+
+### Setting up MySQL server (Optional)
+
+#### Linux (Ubuntu)
+
+1. Install MySQL Server:
+```
+sudo apt update
+sudo apt install mysql-server
+```
+
+2. Verify installation:
+```
+sudo systemctl status mysql
+```
+
+Make sure that the service is `active (running)`.
+
+3. The default installation of the MySQL server only allows root access only if you’re the system user "root" (socket-based authentication). To be able to connect using the root user and password:
+```
+sudo mysql
+```
+
+4. Inside the MySQL console (you can choose any password but make sure it matches the one used in the config):
+```
+ALTER USER 'root'@'localhost'
+  IDENTIFIED WITH mysql_native_password BY 'my_password';
+FLUSH PRIVILEGES;
+quit
+```
+
+Note: This is not a secure configuration and not supposed to be used in production systems.
+
+5. Back in the terminal:
+```
+sudo service mysql restart
+```
+
+### Load Mock Data to MySQL Server
+To load mock data to the MySQL server:
+
+1. Update the MYSQL configuration:
+```
+sudo tee /etc/mysql/my.cnf > /dev/null <<EOF
+[mysqld]
+secure_file_priv=""
+EOF
+```
+
+2. Append this rule to MySQL's AppArmor profile local override:
+````
+echo "/tmp/** r," | sudo tee -a /etc/apparmor.d/local/usr.sbin.mysqld
+```
+
+3. Reload the AppArmor policy:
+```
+sudo apparmor_parser -r /etc/apparmor.d/usr.sbin.mysqld
+```
+
+4. Restart the MySQL server:
+```
+sudo systemctl restart mysql
+```
+
+5. Use the `upload_to_mysql.sh` script in this directory. For this example, we will load the mock user reports in the `data/object_store` directory.
+
+```
+cd examples/object_store/user_report/
+./upload_to_mysql.sh root my_password data/object_store my-bucket
 ```
 
 ## AIQ File Server
@@ -101,7 +172,7 @@ object_stores:
 
 You can start the server by running:
 ```
-aiq serve --config_file examples/object_store/user_report/configs/config.yml
+aiq serve --config_file examples/object_store/user_report/configs/config_s3.yml
 ```
 
 ### Using the Object Store backed File Server
@@ -113,6 +184,7 @@ aiq serve --config_file examples/object_store/user_report/configs/config.yml
 
 If the script `./upload_to_minio.sh` was run and the files are in the object store, example commands are:
 
+- Getting an object: `curl -X GET http://localhost:8000/static/reports/67890/latest.json`
 - Deleting an object: `curl -X DELETE http://localhost:8000/static/reports/67890/latest.json`
 
 
@@ -122,13 +194,13 @@ Run the following command from the root of the AgentIQ repo to execute this work
 
 ### Example 1
 ```
-aiq run --config_file examples/object_store/user_report/configs/config.yml --input "Give me the latest report of user 67890"
+aiq run --config_file examples/object_store/user_report/configs/config_s3.yml --input "Give me the latest report of user 67890"
 ```
 
 **Expected Output**
 ```console
-aiq run --config_file examples/object_store/user_report/configs/config.yml --input "Give me the latest report of user 67890"
-2025-04-23 17:30:04,742 - aiq.cli.commands.start - INFO - Starting AgentIQ from config file: 'examples/object_store/user_report/configs/config.yml'
+aiq run --config_file examples/object_store/user_report/configs/config_s3.yml --input "Give me the latest report of user 67890"
+2025-04-23 17:30:04,742 - aiq.cli.commands.start - INFO - Starting AgentIQ from config file: 'examples/object_store/user_report/configs/config_s3.yml'
 2025-04-23 17:30:04,745 - aiq.cli.commands.start - WARNING - The front end type in the config file (fastapi) does not match the command name (console). Overwriting the config file front end.
 2025-04-23 17:30:04,782 - aiq.profiler.decorators.framework_wrapper - INFO - Langchain callback handler registered
 2025-04-23 17:30:05,404 - aiq.agent.react_agent.agent - INFO - Filling the prompt variables "tools" and "tool_names", using the tools provided in the config.
@@ -187,13 +259,13 @@ Workflow Result:
 
 ### Example 2
 ```
-aiq run --config_file examples/object_store/user_report/configs/config.yml --input "Give me the latest report of user 12345 on April 15th 2025"
+aiq run --config_file examples/object_store/user_report/configs/config_s3.yml --input "Give me the latest report of user 12345 on April 15th 2025"
 ```
 
 **Expected Output**
 ```console
-aiq run --config_file examples/object_store/user_report/configs/config.yml --input "Give me the latest report of user 12345 on April 15th 2025"
-2025-04-23 17:35:27,582 - aiq.cli.commands.start - INFO - Starting AgentIQ from config file: 'examples/object_store/user_report/configs/config.yml'
+aiq run --config_file examples/object_store/user_report/configs/config_s3.yml --input "Give me the latest report of user 12345 on April 15th 2025"
+2025-04-23 17:35:27,582 - aiq.cli.commands.start - INFO - Starting AgentIQ from config file: 'examples/object_store/user_report/configs/config_s3.yml'
 2025-04-23 17:35:27,585 - aiq.cli.commands.start - WARNING - The front end type in the config file (fastapi) does not match the command name (console). Overwriting the config file front end.
 2025-04-23 17:35:27,625 - aiq.profiler.decorators.framework_wrapper - INFO - Langchain callback handler registered
 2025-04-23 17:35:28,214 - aiq.agent.react_agent.agent - INFO - Filling the prompt variables "tools" and "tool_names", using the tools provided in the config.
@@ -258,7 +330,7 @@ Workflow Result:
 
 ### Example 3
 ```
-aiq run --config_file examples/object_store/user_report/configs/config.yml --input 'Create a latest report for user 6789 with the following JSON contents:
+aiq run --config_file examples/object_store/user_report/configs/config_s3.yml --input 'Create a latest report for user 6789 with the following JSON contents:
     {
         "recommendations": [
             "Update graphics driver",
@@ -271,7 +343,7 @@ aiq run --config_file examples/object_store/user_report/configs/config.yml --inp
 
 **Expected Output**
 ```console
-aiq run --config_file examples/object_store/user_report/configs/config.yml --input 'Create a latest report for user 6789 with the following JSON contents:
+aiq run --config_file examples/object_store/user_report/configs/config_s3.yml --input 'Create a latest report for user 6789 with the following JSON contents:
     {
         "recommendations": [
             "Update graphics driver",
@@ -280,7 +352,7 @@ aiq run --config_file examples/object_store/user_report/configs/config.yml --inp
         ]
     }
 '
-2025-04-24 09:57:16,849 - aiq.cli.commands.start - INFO - Starting AgentIQ from config file: 'examples/object_store/user_report/configs/config.yml'
+2025-04-24 09:57:16,849 - aiq.cli.commands.start - INFO - Starting AgentIQ from config file: 'examples/object_store/user_report/configs/config_s3.yml'
 2025-04-24 09:57:16,873 - aiq.cli.commands.start - WARNING - The front end type in the config file (fastapi) does not match the command name (console). Overwriting the config file front end.
 2025-04-24 09:57:16,950 - aiq.profiler.decorators.framework_wrapper - INFO - Langchain callback handler registered
 2025-04-24 09:57:17,574 - aiq.agent.react_agent.agent - INFO - Filling the prompt variables "tools" and "tool_names", using the tools provided in the config.
@@ -334,13 +406,13 @@ Workflow Result:
 
 ### Example 4 (Continued from Example 3)
 ```
-aiq run --config_file examples/object_store/user_report/configs/config.yml --input 'Get the latest report for user 6789'
+aiq run --config_file examples/object_store/user_report/configs/config_s3.yml --input 'Get the latest report for user 6789'
 ```
 
 **Expected Output**
 ```console
-aiq run --config_file examples/object_store/user_report/configs/config.yml --input 'Get the latest report for user 6789'
-2025-04-24 10:00:08,498 - aiq.cli.commands.start - INFO - Starting AgentIQ from config file: 'examples/object_store/user_report/configs/config.yml'
+aiq run --config_file examples/object_store/user_report/configs/config_s3.yml --input 'Get the latest report for user 6789'
+2025-04-24 10:00:08,498 - aiq.cli.commands.start - INFO - Starting AgentIQ from config file: 'examples/object_store/user_report/configs/config_s3.yml'
 2025-04-24 10:00:08,504 - aiq.cli.commands.start - WARNING - The front end type in the config file (fastapi) does not match the command name (console). Overwriting the config file front end.
 2025-04-24 10:00:08,556 - aiq.profiler.decorators.framework_wrapper - INFO - Langchain callback handler registered
 2025-04-24 10:00:12,666 - aiq.agent.react_agent.agent - INFO - Filling the prompt variables "tools" and "tool_names", using the tools provided in the config.

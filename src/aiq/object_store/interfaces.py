@@ -25,9 +25,17 @@ class ObjectStore(ABC):
     """
 
     @abstractmethod
-    async def put_object(self, key: str, data: ObjectStoreItem) -> None:
+    async def put_object(self, key: str, item: ObjectStoreItem) -> None:
         """
         Save a value in the key-value store and return a unique key.
+        """
+        pass
+
+    @abstractmethod
+    async def upsert_object(self, key: str, item: ObjectStoreItem) -> None:
+        """
+        Save a value in the key-value store and return a unique key.
+        If the key already exists, update the value.
         """
         pass
 

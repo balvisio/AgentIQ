@@ -46,20 +46,23 @@ class S3ObjectStore(ObjectStore):
             "endpoint_url": config.endpoint_url
         }
 
-    async def put_object(self, key: str, data: ObjectStoreItem) -> None:
+    async def put_object(self, key: str, item: ObjectStoreItem) -> None:
         put_args = {
             "Bucket": self.bucket_name,
             "Key": key,
-            "Body": data.data,
+            "Body": item.data,
         }
-        if data.content_type:
-            put_args["ContentType"] = data.content_type
+        if item.content_type:
+            put_args["ContentType"] = item.content_type
 
-        if data.metadata:
-            put_args["Metadata"] = data.metadata
+        if item.metadata:
+            put_args["Metadata"] = item.metadata
 
         async with self.session.client("s3", **self.client_args) as s3:
             await s3.put_object(**put_args)
+
+    async def upsert_object(self, key: str, item: ObjectStoreItem) -> None:
+        await self.put_object(key, item)
 
     async def get_object(self, key: str) -> ObjectStoreItem:
         async with self.session.client("s3", **self.client_args) as client:
